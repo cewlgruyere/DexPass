@@ -1,0 +1,4 @@
+[project]
+name = "DexPass"
+description = "A battlepass for dex bots using the ballsdex source code by Gruyere"
+version = "1.0.0"
