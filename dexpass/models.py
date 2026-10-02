@@ -157,13 +157,15 @@ class BallReward(DexPassReward, models.Model):
         pass
 
     ball = models.ForeignKey(
-            Ball,
-            on_delete=models.CASCADE,
+        Ball,
+        on_delete=models.CASCADE,
     )
 
     special = models.ForeignKey(
-            Special,
-            on_delete=models.CASCADE,
+        Special,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     async def give(self, player):
