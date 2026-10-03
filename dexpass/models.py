@@ -191,7 +191,7 @@ async def apply_xp(player: DexPassPlayer, xp: int, bot):
         await PassRewards.objects.acount(),
     )
 
-    await player.asave(update_fields=["xp", "level"])
+    await player.asave(update_fields=["xp", "total_xp", "level"])
 
 
     if player.level != old_level:
@@ -199,6 +199,7 @@ async def apply_xp(player: DexPassPlayer, xp: int, bot):
 
         for level in range(old_level + 1, player.level + 1):
             player.total_levels += 1
+            await player.asave(update_fields=["total_levels"])
             reward = await PassRewards.objects.aget(level=level, season=dexpass_settings.season)
             bd_player, _ = await Player.objects.aget_or_create(discord_id=player.discord_id)
 
