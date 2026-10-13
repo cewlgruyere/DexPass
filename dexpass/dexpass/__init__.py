@@ -8,4 +8,3 @@ if TYPE_CHECKING:
 
 async def setup(bot: "BallsDexBot"):
     await bot.add_cog(DexPass(bot))
-    await monkeypatch(bot)

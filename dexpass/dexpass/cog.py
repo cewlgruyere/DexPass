@@ -13,6 +13,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from math import ceil
 import random
 
+from ballsdex.core.hooks import hook, CatchRollContext
 from bd_models.models import Player
 from ballsdex.core.utils.checks import app_check, is_staff
 from settings.models import settings
@@ -110,7 +111,16 @@ class DexPass(commands.Cog):
 
         await interaction.response.send_message(f"New season: {season}", ephemeral=True)
 
-        
+    @hook("catch_roll", priority=0)
+    async def modify_stats(self, ctx: CatchRollContext):
+        dexp_p, _ = await DexPassPlayer.objects.aget_or_create(discord_id=ctx.user.id)
+
+        channel = getattr(ctx.view, "channel", None) or getattr(getattr(ctx.view, "message", None), "channel", None)
+        amount = dexpass_settings.xp_per_catch * (random.randrange(90, 110) / 100)
+        level, leveled_up = await apply_xp(dexp_p, amount, self.bot)
+        if leveled_up:
+            await channel.send(f"{ctx.user.mention} leveled up to level {int(level)}!")
+    
 
 #region views
 
@@ -349,35 +359,3 @@ class NumberedPageModal(discord.ui.Modal, title="Go to page"):
 
 #endregion
 
-
-
-#region xp monkey patch
-
-async def monkeypatch(bot: "BallsDexBot"):
-    from typing import cast
-    from ballsdex.packages.countryballs import CountryBallsSpawner
-    cog = cast("CountryBallsSpawner", bot.get_cog("CountryBallsSpawner"))
-    if cog is None:
-        return
-    class BallSpawnViewOverride(BallSpawnView):
-        async def catch_ball(self, user: discord.User | discord.Member, *, player: Player | None, guild: discord.Guild | None):
-            ball, is_new = await super().catch_ball(user, player=player, guild=guild)
-
-            if player is None:
-                p, _ = await Player.objects.aget_or_create(discord_id=user.id)
-                dexp_p, _ = await DexPassPlayer.objects.aget_or_create(discord_id=user.id)
-            else:
-                p = player
-                dexp_p, _ = await DexPassPlayer.objects.aget_or_create(discord_id=user.id)
-    
-            channel = self.message.channel if self.message else None
-            amount = dexpass_settings.xp_per_catch * (random.randrange(90, 110) / 100)
-            level, leveled_up = await apply_xp(dexp_p, amount, bot)
-            if leveled_up:
-                await channel.send(f"{user.mention} leveled up to level {int(level)}!")
-            return ball, is_new
-
-    cog.countryball_cls = BallSpawnViewOverride
-
-
-#endregion
