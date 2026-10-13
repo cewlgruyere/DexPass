@@ -1,4 +1,8 @@
 [project]
 name = "DexPass"
 description = "A battlepass for dex bots using the ballsdex source code by Gruyere"
-version = "0.0.1"
+version = "v0.0.3"
+
+
+[tool.setuptools.package-data]
+dexpass = ["templates/**/*.html", "static/**/*"]
