@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from .cog import DexPass, monkeypatch
+from .cog import DexPass
 
 if TYPE_CHECKING:
     from ballsdex.core.bot import BallsDexBot
