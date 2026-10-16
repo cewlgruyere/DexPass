@@ -169,7 +169,7 @@ class BallReward(DexPassReward, models.Model):
     )
 
     async def give(self, player):
-        BallInstance.objects.acreate(
+        await BallInstance.objects.acreate(
             ball=self.ball,
             player=player,
             attack_bonus=random.randint(-20, 20),
